@@ -1,0 +1,34 @@
+version: '2'
+services:
+
+  # Laravel Application Code Container
+  applications:
+    image: tianon/true
+    volumes:
+      - ./applications:/var/www
+
+  # Web server
+  wed:
+    build:
+      context: ./docker/apache
+      dockerfile: Dockerfile
+      args:
+        - PHP_SOCKET=php-fpm:9000
+    image: webservice
+    volumes_from:
+      - applications
+    volumes:
+      - ./logs/apache2:/var/log/apache2
+    ports:
+      - "80:80"
+    links:
+      - php-fpm
+
+  # The Application
+  php-fpm:
+    build:
+      context: ./docker
+      dockerfile: php-fpm/Dockerfile
+    image: php-fpm
+    volumes_from:
+      - applications
